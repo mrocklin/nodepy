@@ -14,10 +14,19 @@ import numpy as np
 import rooted_trees as tt
 from strmanip import *
 
+import sympy
+
+n = sympy.Symbol('n')
+A = sympy.MatrixSymbol('A', n, n)
+Ahat = sympy.MatrixSymbol('Ahat', n, n)
+c = sympy.MatrixSymbol('c', n, 1)
+b = sympy.MatrixSymbol('b', n, 1)
+e = sympy.MatrixSymbol('e', n, 1)
+
 #=====================================================
 class TwoStepRungeKuttaMethod(GeneralLinearMethod):
 #=====================================================
-    """ General class for Two-step Runge-Kutta Methods 
+    """ General class for Two-step Runge-Kutta Methods
         The representation
         uses the form and notation of [Jackiewicz1995]_.
 
@@ -47,7 +56,7 @@ class TwoStepRungeKuttaMethod(GeneralLinearMethod):
         self.type=type
 
     def order(self,tol=1.e-13):
-        r""" 
+        r"""
             Return the order of a Two-step Runge-Kutta method.
             Computed by computing the elementary weights corresponding
             to the appropriate rooted trees.
@@ -85,7 +94,7 @@ class TwoStepRungeKuttaMethod(GeneralLinearMethod):
 
 
     def stability_matrix(self,z):
-        r""" 
+        r"""
             Constructs the stability matrix of a two-step Runge-Kutta method.
             Right now just for a specific value of z.
             We ought to use Sage to do it symbolically.
@@ -96,7 +105,7 @@ class TwoStepRungeKuttaMethod(GeneralLinearMethod):
             WARNING: This only works for Type I & Type II methods
             right now!!!
         """
-        D=np.hstack([1.-self.d,self.d]) 
+        D=np.hstack([1.-self.d,self.d])
         thet=np.hstack([1.-self.theta,self.theta])
         A,b=self.A,self.b
         if self.type=='Type II':
@@ -113,7 +122,7 @@ class TwoStepRungeKuttaMethod(GeneralLinearMethod):
 
     def plot_stability_region(self,N=50,bounds=[-10,1,-5,5],
                     color='r',filled=True,scaled=False):
-        r""" 
+        r"""
             Plot the region of absolute stability
             of a Two-step Runge-Kutta method, i.e. the set
 
@@ -153,7 +162,7 @@ class TwoStepRungeKuttaMethod(GeneralLinearMethod):
 
     def absolute_monotonicity_radius(self,acc=1.e-10,rmax=200,
                     tol=3.e-16):
-        r""" 
+        r"""
             Returns the radius of absolute monotonicity
             of a TSRK method.
         """
@@ -199,7 +208,7 @@ class TwoStepRungeKuttaMethod(GeneralLinearMethod):
             T1 =  np.hstack([ahat,self.A,np.zeros([s,1])])
             T2 =  np.hstack([bh,self.b.T,np.zeros([1,1])])
             T = np.vstack([T0,T1,T2])
-            
+
         return S,T
 
     def is_absolutely_monotonic(self,r,tol):
@@ -246,7 +255,7 @@ def TSRKOrderConditions(p,ind='all'):
 
 def tsrk_elementary_weight(tree):
     """
-        Constructs Butcher's elementary weights 
+        Constructs Butcher's elementary weights
         for Two-step Runge-Kutta methods
     """
     from sympy import Symbol
@@ -256,7 +265,7 @@ def tsrk_elementary_weight(tree):
 
 def tsrk_elementary_weight_str(tree):
     """
-        Constructs Butcher's elementary weights 
+        Constructs Butcher's elementary weights
         for Two-step Runge-Kutta methods
         as numpy-executable strings
     """
@@ -269,9 +278,9 @@ def TSRKeta(tree):
     from rooted_trees import Dprod
     from sympy import symbols
     raise Exception('This function does not work correctly; use the _str version')
-    if tree=='':  return 1
-    if tree=='T': return symbols('c',commutative=False)
-    return symbols('d',commutative=False)*tree.Emap(-1)+symbols('Ahat',commutative=False)*tree.Gprod(Emap,Dprod,betaargs=[TSRKeta],alphaargs=[-1])+symbols('A',commutative=False)*Dprod(tree,TSRKeta)
+    if tree=='':  return e
+    if tree=='T': return c
+    return d*tree.Emap(-1) + Ahat*tree.Gprod(Emap,Dprod,betaargs=[TSRKeta],alphaargs=[-1]) + A*Dprod(tree,TSRKeta)
 
 def TSRKeta_str(tree):
     """
@@ -326,7 +335,7 @@ class TwoStepRungeKuttaError(Exception):
 def load_type2_TSRK(s,p,type='Type II'):
     r"""
     Load a TSRK method from its coefficients in an ASCII file
-    (usually from MATLAB).  The coefficients are stored in the 
+    (usually from MATLAB).  The coefficients are stored in the
     following order: [s d theta A b Ahat bhat].
     """
     path='/Users/ketch/Research/Projects/MRK/methods/TSRK/'

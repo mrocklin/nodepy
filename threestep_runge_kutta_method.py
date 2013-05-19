@@ -21,6 +21,16 @@ import rooted_trees as tt
 from sympy import Symbol
 from strmanip import *
 
+import sympy
+
+n = sympy.Symbol('n')
+A = sympy.MatrixSymbol('A', n, n)
+d2 = sympy.MatrixSymbol('d2', n, 1)
+d3 = sympy.MatrixSymbol('d3', n, 1)
+c = sympy.MatrixSymbol('c', n, 1)
+b = sympy.MatrixSymbol('b', n, 1)
+e = sympy.MatrixSymbol('e', n, 1)
+
 #=====================================================
 class ThreeStepRungeKuttaMethod(GeneralLinearMethod):
 #=====================================================
@@ -33,7 +43,7 @@ class ThreeStepRungeKuttaMethod(GeneralLinearMethod):
         self.D,self.theta,self.A,self.b=D,theta,A,b
 
     def order(self,tol=1.e-13):
-        r""" 
+        r"""
             Return the order of a Three-step Runge-Kutta method.
             Computed by computing the elementary weights corresponding
             to the appropriate rooted trees.
@@ -81,7 +91,7 @@ def ThSRKOrderConditions(p,ind='all'):
 
 def thsrk_elementary_weight(tree):
     """
-        Constructs Butcher's elementary weights 
+        Constructs Butcher's elementary weights
         for Three-step Runge-Kutta methods.
     """
     b,theta=Symbol('b',False),Symbol('theta',False)
@@ -90,7 +100,7 @@ def thsrk_elementary_weight(tree):
 
 def thsrk_elementary_weight_str(tree):
     """
-        Constructs Butcher's elementary weights 
+        Constructs Butcher's elementary weights
         for Two-step Runge-Kutta methods
         as numpy-executable strings
     """
@@ -100,7 +110,7 @@ def thsrk_elementary_weight_str(tree):
 
 def thsrk_elementary_weight_str_matlab(tree):
     """
-        Constructs Butcher's elementary weights 
+        Constructs Butcher's elementary weights
         for Two-step Runge-Kutta methods
         as matlab-executable strings
     """
@@ -111,11 +121,11 @@ def thsrk_elementary_weight_str_matlab(tree):
 
 def ThSRKeta(tree):
     from rooted_trees import Dprod
-    from sympy import symbols
     raise Exception('This function does not work correctly; use the _str version')
-    if tree=='':  return 1
-    if tree=='T': return symbols('c',commutative=False)
-    return symbols('d2',commutative=False)*tree.Emap(-1)+symbols('d3',commutative=False)*tree.Emap(-2)+symbols('A',commutative=False)*Dprod(tree,ThSRKeta)
+    n = Symbol('n')
+    if tree=='':  return e
+    if tree=='T': return c
+    return d2*tree.Emap(-1) + d3*tree.Emap(-2)+ A*Dprod(tree,ThSRKeta)
 
 def ThSRKeta_str(tree):
     """
